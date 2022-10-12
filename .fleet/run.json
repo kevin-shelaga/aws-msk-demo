@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+          "type": "go",
+          "name": "producer",
+          "goExecPath": "./producer/producer.go",
+          "buildTargets": []
+        },
+      {
+        "type": "go",
+        "name": "consumer",
+        "goExecPath": "./consumer/consumer.go",
+        "buildTargets": []
+      },
+    ]
+}
