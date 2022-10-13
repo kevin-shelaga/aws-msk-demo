@@ -29,8 +29,6 @@ func newKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 func createKafkaTopic(kafkaURL, topic string) {
 	ctx := context.Background()
 
-	fmt.Println("USERNAME: " + os.Getenv("USERNAME"))
-	fmt.Println("PASSWORD: " + os.Getenv("PASSWORD"))
 	mechanism, err := scram.Mechanism(scram.SHA512, os.Getenv("USERNAME"), os.Getenv("PASSWORD"))
 	if err != nil {
 		panic(err)
@@ -43,7 +41,6 @@ func createKafkaTopic(kafkaURL, topic string) {
 		TLS:           &tls.Config{},
 	}
 
-	fmt.Println("kafkaURL: %v", kafkaURL)
 	conn, err := dialer.DialContext(ctx, "tcp", kafkaURL)
 	if err != nil {
 		panic(err.Error())
