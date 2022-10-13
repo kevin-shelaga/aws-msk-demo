@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"github.com/segmentio/kafka-go/sasl/scram"
 	"math/rand"
@@ -39,9 +40,10 @@ func createKafkaTopic(kafkaURL, topic string) {
 		Timeout:       10 * time.Second,
 		DualStack:     true,
 		SASLMechanism: mechanism,
+		TLS:           &tls.Config{},
 	}
 
-	fmt.Println("kafkaURL: %v", kafkaURL)
+	//fmt.Println("kafkaURL: ", strings.Join(kafkaURL, ", "))
 	conn, err := dialer.DialContext(ctx, "tcp", kafkaURL)
 	if err != nil {
 		panic(err.Error())
