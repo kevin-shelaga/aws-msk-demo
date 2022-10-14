@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/segmentio/kafka-go/sasl/scram"
 	"math/rand"
 	"net"
 	"os"
@@ -14,7 +13,7 @@ import (
 	kafka "github.com/segmentio/kafka-go"
 )
 
-var BrokerURLs = []string{os.Getenv("BROKER1"), os.Getenv("BROKER2"), os.Getenv("BROKER3")}
+var BrokerURLs = []string{os.Getenv("BROKER1")}
 
 func newKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 	kafkaConfig := kafka.WriterConfig{
@@ -26,26 +25,8 @@ func newKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 }
 
 func createKafkaTopic(kafkaURL, topic string) {
-	ctx := context.Background()
+	conn, err := kafka.Dial("tcp", kafkaURL)
 
-	mechanism, err := scram.Mechanism(scram.SHA512, os.Getenv("USERNAME"), os.Getenv("PASSWORD"))
-	if err != nil {
-		panic(err)
-	}
-
-	dialer := &kafka.Dialer{
-		Timeout:       10 * time.Second,
-		DualStack:     true,
-		SASLMechanism: mechanism,
-		//TLS:           &tls.Config{},
-	}
-
-	conn, err := dialer.DialContext(ctx, "tcp", kafkaURL)
-	if err != nil {
-		fmt.Println(err)
-		panic(err.Error())
-	}
-	//conn, err := kafka.Dial("tcp", kafkaURL)
 	controller, err := conn.Controller()
 	if err != nil {
 		panic(err.Error())
