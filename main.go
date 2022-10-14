@@ -3,37 +3,85 @@ package main
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"net"
+	"strconv"
+	"time"
+
+	"github.com/google/uuid"
 	kafka "github.com/segmentio/kafka-go"
-	"log"
 )
 
-var BrokerURLs = []string{"kafka.kafka.svc.cluster.local:9092"}
+var BrokerURLs = []string{"kafka-0.kafka-headless.kafka.svc.cluster.local:9092"}
 
-func getKafkaReader(topic, groupID string) *kafka.Reader {
-	return kafka.NewReader(kafka.ReaderConfig{
+//var BrokerURLs = []string{"a37cd7b8f88914c58b1e3e70d74857eb-1208739947.us-east-2.elb.amazonaws.com:9094"}
+
+func newKafkaWriter(kafkaURL, topic string) *kafka.Writer {
+	kafkaConfig := kafka.WriterConfig{
 		Brokers:  BrokerURLs,
-		GroupID:  groupID,
 		Topic:    topic,
-		MinBytes: 1,    // 1B
-		MaxBytes: 10e6, // 10MB
-	})
+		Balancer: &kafka.Hash{},
+	}
+	return kafka.NewWriter(kafkaConfig)
+}
+
+func createKafkaTopic(kafkaURL, topic string) {
+	conn, err := kafka.Dial("tcp", kafkaURL)
+	if err != nil {
+		panic(err.Error())
+	}
+	controller, err := conn.Controller()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	var controllerConn *kafka.Conn
+	controllerConn, err = kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
+	if err != nil {
+		panic(err.Error())
+	}
+	defer controllerConn.Close()
+
+	topicConfigs := []kafka.TopicConfig{
+		kafka.TopicConfig{
+			Topic:             topic,
+			NumPartitions:     3,
+			ReplicationFactor: 2,
+		},
+	}
+
+	err = controllerConn.CreateTopics(topicConfigs...)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer conn.Close()
+
 }
 
 func main() {
 
+	kafkaURL := BrokerURLs[0]
 	topic := "topicTest"
-	groupID := "testConsumer"
 
-	reader := getKafkaReader(topic, groupID)
+	createKafkaTopic(kafkaURL, topic)
 
-	defer reader.Close()
+	writer := newKafkaWriter(kafkaURL, topic)
+	defer writer.Close()
+	fmt.Println("start producing ... !!")
 
-	fmt.Println("start consuming ... !!")
-	for {
-		m, err := reader.ReadMessage(context.Background())
-		if err != nil {
-			log.Fatalln(err)
+	for i := 0; ; i++ {
+		keyval := rand.Intn(3)
+		key := fmt.Sprintf("Key-%d", keyval)
+		msg := kafka.Message{
+			Key:   []byte(key),
+			Value: []byte(fmt.Sprint(uuid.New())),
 		}
-		fmt.Printf("message at partition:%v offset:%v	%s \n", m.Partition, m.Offset, string(m.Key))
+		err := writer.WriteMessages(context.Background(), msg)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println("produced", key)
+		}
+		time.Sleep(1 * time.Second)
 	}
 }
