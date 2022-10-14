@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
-	"os"
 	"strconv"
 	"time"
 
@@ -13,7 +12,7 @@ import (
 	kafka "github.com/segmentio/kafka-go"
 )
 
-var BrokerURLs = []string{os.Getenv("BROKER1")}
+var BrokerURLs = []string{"kafka-0.kafka-headless.kafka.svc.cluster.local:9092"}
 
 func newKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 	kafkaConfig := kafka.WriterConfig{
@@ -42,8 +41,8 @@ func createKafkaTopic(kafkaURL, topic string) {
 	topicConfigs := []kafka.TopicConfig{
 		kafka.TopicConfig{
 			Topic:             topic,
-			NumPartitions:     3,
-			ReplicationFactor: 2,
+			NumPartitions:     2,
+			ReplicationFactor: 1,
 		},
 	}
 
