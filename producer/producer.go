@@ -12,7 +12,7 @@ import (
 	kafka "github.com/segmentio/kafka-go"
 )
 
-var BrokerURLs = []string{" kafka-0.kafka-headless.kafka.svc.cluster.local:9092"}
+var BrokerURLs = []string{"kafka-0.kafka-headless.kafka.svc.cluster.local:9092"}
 
 func newKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 	kafkaConfig := kafka.WriterConfig{
