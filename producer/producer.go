@@ -28,7 +28,7 @@ func newKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 func createKafkaTopic(kafkaURL, topic string) {
 	ctx := context.Background()
 
-	mechanism, err := scram.Mechanism(scram.SHA256, os.Getenv("USERNAME"), os.Getenv("PASSWORD"))
+	mechanism, err := scram.Mechanism(scram.SHA512, os.Getenv("USERNAME"), os.Getenv("PASSWORD"))
 	if err != nil {
 		panic(err)
 	}
