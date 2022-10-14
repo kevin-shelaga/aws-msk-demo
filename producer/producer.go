@@ -25,7 +25,9 @@ func newKafkaWriter(kafkaURL, topic string) *kafka.Writer {
 
 func createKafkaTopic(kafkaURL, topic string) {
 	conn, err := kafka.Dial("tcp", kafkaURL)
-
+	if err != nil {
+		panic(err.Error())
+	}
 	controller, err := conn.Controller()
 	if err != nil {
 		panic(err.Error())
@@ -41,8 +43,8 @@ func createKafkaTopic(kafkaURL, topic string) {
 	topicConfigs := []kafka.TopicConfig{
 		kafka.TopicConfig{
 			Topic:             topic,
-			NumPartitions:     2,
-			ReplicationFactor: 1,
+			NumPartitions:     3,
+			ReplicationFactor: 2,
 		},
 	}
 
