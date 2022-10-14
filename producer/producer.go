@@ -43,6 +43,7 @@ func createKafkaTopic(kafkaURL, topic string) {
 
 	conn, err := dialer.DialContext(ctx, "tcp", kafkaURL)
 	if err != nil {
+		fmt.Println(err)
 		panic(err.Error())
 	}
 	//conn, err := kafka.Dial("tcp", kafkaURL)
