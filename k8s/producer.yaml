@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: producer
-  namespace: kafka
+  namespace: backend-apis
   labels:
     app: producer
 spec:

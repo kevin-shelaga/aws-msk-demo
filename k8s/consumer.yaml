@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: consumer
-  namespace: kafka
+  namespace: backend-apis
   labels:
     app: consumer
 spec:
